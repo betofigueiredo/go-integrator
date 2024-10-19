@@ -4,20 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
-
-// func setUpRoutes(app *fiber.App) {
-// 	app.Get("/hello", routes.Hello)
-// 	// app.Get("/allbooks", routes.AllBooks)
-// 	// app.Post("/addbook", routes.AddBook)
-// 	// app.Post("/book", routes.Book)
-// 	// app.Put("/update", routes.Update)
-// 	// app.Delete("/delete", routes.Delete)
-// }
 
 type User struct {
 	PublicID string `json:"public_id"`
@@ -29,7 +21,19 @@ type Response struct {
 	User User `json:"user"`
 }
 
-func getJson(url string, target *Response) error {
+type Metadata struct {
+	Page       int `json:"page"`
+	PerPage    int `json:"per_page"`
+	TotalCount int `json:"total_count"`
+}
+
+type UsersList struct {
+	Users    []User   `json:"users"`
+	Metadata Metadata `json:"metadata"`
+}
+
+func getJson(url string, target interface{}) error {
+	// TODO: better error handle
 	res, err := http.Get(url)
 	if err != nil {
 		return err
@@ -40,6 +44,32 @@ func getJson(url string, target *Response) error {
 
 func main() {
 	app := fiber.New()
+
+	app.Get("/get-users", func(c *fiber.Ctx) error {
+		page := 1
+		perPage := 1000
+		totalPages := 1
+		allUsers := []string{}
+
+		for {
+			url := fmt.Sprintf("http://gi-api:8000/users?page=%d&per_page=%d", page, perPage)
+			usersList := UsersList{}
+			getJson(url, &usersList)
+
+			totalPages = int(math.Ceil(float64(usersList.Metadata.TotalCount) / float64(usersList.Metadata.PerPage)))
+
+			for i := 0; i < len(usersList.Users); i++ {
+				allUsers = append(allUsers, usersList.Users[i].PublicID)
+			}
+
+			page++
+			if page == totalPages {
+				break
+			}
+		}
+
+		return c.JSON(allUsers[0:10])
+	})
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		response := Response{}
