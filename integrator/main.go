@@ -6,6 +6,7 @@ import (
 	"log"
 	"math"
 	"net/http"
+	"sync"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -42,31 +43,35 @@ func getJson(url string, target interface{}) error {
 	return json.NewDecoder(res.Body).Decode(target)
 }
 
+var wg sync.WaitGroup
+
 func main() {
 	app := fiber.New()
 
 	app.Get("/get-users", func(c *fiber.Ctx) error {
-		page := 1
-		perPage := 1000
-		totalPages := 1
 		allUsers := []string{}
+		perPage := 1000
+		pagesData := UsersList{}
+		getJson("http://gi-api:8000/users?page=1&per_page=1", &pagesData)
+		totalPages := int(math.Ceil(float64(pagesData.Metadata.TotalCount) / float64(perPage)))
 
-		for {
-			url := fmt.Sprintf("http://gi-api:8000/users?page=%d&per_page=%d", page, perPage)
-			usersList := UsersList{}
-			getJson(url, &usersList)
+		for page := 1; page <= totalPages; page++ {
+			wg.Add(1)
 
-			totalPages = int(math.Ceil(float64(usersList.Metadata.TotalCount) / float64(usersList.Metadata.PerPage)))
+			go func(p int) {
+				defer wg.Done()
 
-			for i := 0; i < len(usersList.Users); i++ {
-				allUsers = append(allUsers, usersList.Users[i].PublicID)
-			}
+				url := fmt.Sprintf("http://gi-api:8000/users?page=%d&per_page=%d", p, perPage)
+				usersList := UsersList{}
+				getJson(url, &usersList)
 
-			page++
-			if page == totalPages {
-				break
-			}
+				for i := 0; i < len(usersList.Users); i++ {
+					allUsers = append(allUsers, usersList.Users[i].PublicID)
+				}
+			}(page)
 		}
+
+		wg.Wait()
 
 		return c.JSON(allUsers[0:10])
 	})
