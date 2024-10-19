@@ -1,3 +1,5 @@
+import asyncio
+
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import asc, func
@@ -43,6 +45,7 @@ async def get_users(
     metadata = ListMetadata(
         {"page": page, "per_page": per_page, "total_count": total_count}
     )
+    await asyncio.sleep(0.4)
     return {"users": list(users), "metadata": metadata}
 
 
