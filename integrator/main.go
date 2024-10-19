@@ -1,7 +1,10 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -17,20 +20,38 @@ import (
 // }
 
 type User struct {
-	Name  string
-	Email string
+	PublicID string `json:"public_id"`
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+}
+
+type Response struct {
+	User User `json:"user"`
+}
+
+func getJson(url string, target *Response) error {
+	res, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+	return json.NewDecoder(res.Body).Decode(target)
 }
 
 func main() {
 	app := fiber.New()
 
 	app.Get("/", func(c *fiber.Ctx) error {
+		response := Response{}
+		getJson("http://gi-api:8000/users/mFL2DS5KmpcL", &response)
+		fmt.Println(response.User)
+
 		data := User{
-			Name:  "Grame",
-			Email: "grame@test.com",
+			PublicID: response.User.PublicID,
+			Name:     response.User.Name,
+			Email:    response.User.Email,
 		}
 		return c.JSON(data)
-		// return c.SendString("Hello integrator!")
 	})
 
 	app.Use(cors.New())
