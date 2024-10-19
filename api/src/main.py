@@ -27,10 +27,10 @@ app.add_exception_handler(Exception, unhandled_exception_handler)
 
 @app.get("/users", response_model=UsersResponse[UserSchema])
 async def get_users(
+    page: int,
+    per_page: int,
     session: AsyncSession = Depends(get_session),
 ) -> UsersResponse[User]:
-    page = 1
-    per_page = 10
     list_query = (
         select(User)
         .order_by(asc(User.id))
