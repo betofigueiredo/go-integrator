@@ -1,0 +1,44 @@
+services:
+  api:
+    container_name: gi-api
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    env_file:
+      - ./api/.env
+    ports:
+      - "8000:8000"
+    restart: on-failure
+    volumes:
+      - ./api:/api
+    depends_on:
+      - database
+
+  integrator:
+    container_name: "gi-integrator"
+    build:
+      context: ./integrator
+      dockerfile: Dockerfile
+    env_file:
+      - ./integrator/.env
+    ports:
+      - "3002:3002"
+    restart: on-failure
+    volumes:
+      - ./integrator:/app
+    depends_on:
+      - database
+
+  database:
+    container_name: "gi-database"
+    image: postgres:16.4
+    restart: always
+    ports:
+      - "7432:5432"
+    env_file:
+      - ./api/.env
+    volumes:
+      - database:/var/lib/postgresql/data
+
+volumes:
+  database: ~
