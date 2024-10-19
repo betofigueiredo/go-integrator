@@ -5,8 +5,6 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	// "github.com/zeimedee/go-postgres/database"
-	// "github.com/zeimedee/go-postgres/routes"
 )
 
 // func setUpRoutes(app *fiber.App) {
@@ -18,11 +16,21 @@ import (
 // 	// app.Delete("/delete", routes.Delete)
 // }
 
+type User struct {
+	Name  string
+	Email string
+}
+
 func main() {
 	app := fiber.New()
 
 	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Hello integrator!")
+		data := User{
+			Name:  "Grame",
+			Email: "grame@test.com",
+		}
+		return c.JSON(data)
+		// return c.SendString("Hello integrator!")
 	})
 
 	app.Use(cors.New())
