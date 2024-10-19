@@ -1,5 +1,6 @@
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import asc, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
@@ -28,9 +29,20 @@ app.add_exception_handler(Exception, unhandled_exception_handler)
 async def get_users(
     session: AsyncSession = Depends(get_session),
 ) -> UsersResponse[User]:
-    # TODO: pagination
-    users = await session.scalars(select(User))
-    metadata = ListMetadata({"page": 1, "per_page": 10, "total_count": 1000})
+    page = 1
+    per_page = 10
+    list_query = (
+        select(User)
+        .order_by(asc(User.id))
+        .limit(per_page)
+        .offset((page - 1) * per_page)
+    )
+    count_query = select(func.count(User.id))
+    users = await session.scalars(list_query)
+    total_count = await session.scalar(count_query) or 0
+    metadata = ListMetadata(
+        {"page": page, "per_page": per_page, "total_count": total_count}
+    )
     return {"users": list(users), "metadata": metadata}
 
 
