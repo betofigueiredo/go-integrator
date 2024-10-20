@@ -1,8 +1,6 @@
 from datetime import datetime
-from typing import Optional
 
 from sqlalchemy import BigInteger, String, func
-from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import (
     DeclarativeBase,
     Mapped,
@@ -25,7 +23,11 @@ class User(Base):
     public_id: Mapped[str] = mapped_column(String(12), index=True, unique=True)
     name: Mapped[str]
     email: Mapped[str]
-    details: Mapped[Optional[dict[str, str | int | bool]]] = mapped_column(JSONB)
+    phone: Mapped[str]
+    sex: Mapped[str]
+    birth_date: Mapped[datetime]
+    role: Mapped[str]
+    is_active: Mapped[bool]
     created_at: Mapped[datetime] = mapped_column(init=False, insert_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         init=False, insert_default=func.now(), onupdate=func.now()

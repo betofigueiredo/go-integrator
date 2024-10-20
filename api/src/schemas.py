@@ -6,6 +6,11 @@ from pydantic import BaseModel
 class CreateUserSchema(BaseModel):
     name: str
     email: str
+    phone: str
+    sex: str
+    birth_date: datetime
+    role: str
+    is_active: bool
 
 
 class UserSchema(BaseModel):
@@ -21,7 +26,11 @@ class FullUserSchema(BaseModel):
     public_id: str
     name: str
     email: str
-    details: dict[str, str | int | float | bool | None]
+    phone: str
+    sex: str
+    birth_date: datetime
+    role: str
+    is_active: bool
     created_at: datetime
     updated_at: datetime
 

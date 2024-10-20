@@ -1,18 +1,18 @@
 """init
 
-Revision ID: 5ef4ad9d1221
+Revision ID: b2c3da65cf26
 Revises: 
-Create Date: 2024-10-19 01:17:58.628985
+Create Date: 2024-10-19 23:57:29.123227
 
 """
 from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.dialects import postgresql
+
 
 # revision identifiers, used by Alembic.
-revision: str = '5ef4ad9d1221'
+revision: str = 'b2c3da65cf26'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -25,7 +25,11 @@ def upgrade() -> None:
     sa.Column('public_id', sa.String(length=12), nullable=False),
     sa.Column('name', sa.String(), nullable=False),
     sa.Column('email', sa.String(), nullable=False),
-    sa.Column('details', postgresql.JSONB(astext_type=sa.Text()), nullable=True),
+    sa.Column('phone', sa.String(), nullable=False),
+    sa.Column('sex', sa.String(), nullable=False),
+    sa.Column('birth_date', sa.DateTime(), nullable=False),
+    sa.Column('role', sa.String(), nullable=False),
+    sa.Column('is_active', sa.Boolean(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=False),
     sa.Column('updated_at', sa.DateTime(), nullable=False),
     sa.PrimaryKeyConstraint('id')

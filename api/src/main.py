@@ -70,7 +70,16 @@ async def create_user(
     data: CreateUserSchema, session: AsyncSession = Depends(get_session)
 ) -> UserResponse[User] | ErrorResponse:
     public_id = utils.ids.generateNano()
-    user = User(public_id=public_id, name=data.name, email=data.email, details={})
+    user = User(
+        public_id=public_id,
+        name=data.name,
+        email=data.email,
+        phone=data.phone,
+        sex=data.sex,
+        birth_date=data.birth_date,
+        role=data.role,
+        is_active=data.is_active,
+    )
     session.add(user)
     await session.flush()
     created_user = user
