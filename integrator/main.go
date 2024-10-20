@@ -12,6 +12,19 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
+type FullUser struct {
+	PublicID  string `json:"public_id"`
+	Name      string `json:"name"`
+	Email     string `json:"email"`
+	Phone     string `json:"phone"`
+	Sex       string `json:"sex"`
+	BirthDate string `json:"birth_date"`
+	Role      string `json:"role"`
+	IsActive  bool   `json:"is_active"`
+	CreatedAt string `json:"created_at"`
+	UpdatedAt string `json:"updated_at"`
+}
+
 type User struct {
 	PublicID string `json:"public_id"`
 	Name     string `json:"name"`
@@ -49,7 +62,8 @@ func main() {
 	app := fiber.New()
 
 	app.Get("/get-users", func(c *fiber.Ctx) error {
-		allUsers := []string{}
+		var lock = sync.RWMutex{}
+		usersMap := map[string]FullUser{}
 		perPage := 1000
 		pagesData := UsersList{}
 		getJson("http://gi-api:8000/users?page=1&per_page=1", &pagesData)
@@ -66,14 +80,19 @@ func main() {
 				getJson(url, &usersList)
 
 				for i := 0; i < len(usersList.Users); i++ {
-					allUsers = append(allUsers, usersList.Users[i].PublicID)
+					go func() {
+						lock.Lock()
+						defer lock.Unlock()
+						usersMap[usersList.Users[i].PublicID] = FullUser{}
+					}()
 				}
 			}(page)
 		}
 
 		wg.Wait()
 
-		return c.JSON(allUsers[0:10])
+		return c.JSON(fiber.Map{"status": "done"})
+		// return c.JSON(usersMap)
 	})
 
 	app.Get("/", func(c *fiber.Ctx) error {
