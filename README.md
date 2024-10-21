@@ -8,24 +8,31 @@
   <a href="https://fastapi.tiangolo.com/"><img src="https://img.shields.io/badge/Made%20with-FastAPI-blue?style=for-the-badge&labelColor=363a4f&color=009485"></a>
   <br/>
   <a href="https://github.com/betofigueiredo/go-integrator/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge&labelColor=363a4f&color=a6da95"></a>
-  <br/><br/>
-  <img src="https://github.com/user-attachments/assets/bb5a1b9d-e50e-44c0-a116-bde1987e9ede" alt="Flow" width="830" />
-  <br/><br/>
-  <img src="https://github.com/user-attachments/assets/43b5d60b-e252-43b0-945b-cba35fff2282" alt="API Schema" width="830" />
-  <br/><br/>
-  <img src="https://github.com/user-attachments/assets/c261c64d-567f-4162-a033-d5502f3c788e" alt="Integrator Schema" width="830" />
 </p>
 
-<h2 id="scenario4"> :moyai: WHY</h2>
+<h2 id="scenario4"> :moyai: API</h2>
+
+<p>
+  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Made%20with-Python-blue?style=for-the-badge&labelColor=363a4f&color=346FA0"></a>
+  <a href="https://fastapi.tiangolo.com/"><img src="https://img.shields.io/badge/Made%20with-FastAPI-blue?style=for-the-badge&labelColor=363a4f&color=009485"></a>
+  <br/><br/>
+  Endpoint: <strong>/users</strong>
+  <br/>
+  <img src="https://github.com/user-attachments/assets/e4adfcf2-29db-4cb0-99ad-1952c7e9708c" alt="API Schema 1" />
+  <br/><br/>
+  Endpoint: <strong>/users/{user_id}</strong>
+  <br/>
+  <img src="https://github.com/user-attachments/assets/5b2f2487-422c-408c-aabf-2bbd5028427d" alt="API Schema 2" />
+</p>
 
 ...
 
 <h2 id="scenario4"> :zap: Usage</h2>
 
 ```zsh
-gh repo clone ...
+❯ gh repo clone ...
 
-make up
+❯ make up
 
 ...
 ```
