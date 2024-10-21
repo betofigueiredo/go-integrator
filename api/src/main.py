@@ -62,6 +62,7 @@ async def get_user(
             detail={"code": "USER_NOT_FOUND", "message": "User not found"},
             status_code=status.HTTP_404_NOT_FOUND,
         )
+    await asyncio.sleep(0.4)
     return {"user": user}
 
 
