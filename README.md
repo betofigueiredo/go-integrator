@@ -9,11 +9,11 @@
   <br/>
   <a href="https://github.com/betofigueiredo/go-integrator/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge&labelColor=363a4f&color=a6da95"></a>
   <br/><br/>
-  <img src="https://github.com/user-attachments/assets/bb5a1b9d-e50e-44c0-a116-bde1987e9ede" alt="Flow" width="100%" style="max-width: 830px" />
+  <img src="https://github.com/user-attachments/assets/bb5a1b9d-e50e-44c0-a116-bde1987e9ede" alt="Flow" width="830" />
   <br/><br/>
-  <img src="https://github.com/user-attachments/assets/43b5d60b-e252-43b0-945b-cba35fff2282" alt="API Schema" width="100%" style="max-width: 830px" />
+  <img src="https://github.com/user-attachments/assets/43b5d60b-e252-43b0-945b-cba35fff2282" alt="API Schema" width="830" />
   <br/><br/>
-  <img src="https://github.com/user-attachments/assets/c261c64d-567f-4162-a033-d5502f3c788e" alt="Integrator Schema" width="100%" style="max-width: 830px" />
+  <img src="https://github.com/user-attachments/assets/c261c64d-567f-4162-a033-d5502f3c788e" alt="Integrator Schema" width="830" />
 </p>
 
 <h2 id="scenario4"> :moyai: WHY</h2>
