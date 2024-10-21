@@ -35,6 +35,10 @@ type Response struct {
 	User User `json:"user"`
 }
 
+type UserDataResponse struct {
+	User FullUser `json:"user"`
+}
+
 type Metadata struct {
 	Page       int `json:"page"`
 	PerPage    int `json:"per_page"`
@@ -76,7 +80,7 @@ func main() {
 		getJson("http://gi-api:8000/users?page=1&per_page=1", &pagesData)
 		totalPages := int(math.Ceil(float64(pagesData.Metadata.TotalCount) / float64(perPage)))
 
-		ch := make(chan UsersList, totalPages)
+		ch := make(chan UsersList)
 
 		for page := 1; page <= totalPages; page++ {
 			wg.Add(2)
@@ -104,43 +108,44 @@ func main() {
 
 		wg.Wait()
 
-		// go func() {
-		// 	lock.Lock()
-		// 	defer lock.Unlock()
-		// 	defer wg.Done()
+		ch2 := make(chan UserDataResponse)
 
-		// 	list := <-ch
-		// 	for i := 0; i < len(list.Users); i++ {
-		// 		usersMap[list.Users[i].PublicID] = FullUser{}
-		// 	}
-		// }()
+		// get each user information
+		i := 0
+		for userID := range usersMap {
+			i++
+			if i > 50 {
+				break
+			}
 
-		// for page := 1; page <= totalPages; page++ {
-		// 	wg.Add(1)
+			wg.Add(2)
 
-		// 	go func(p int) {
-		// 		defer wg.Done()
+			// make user request
+			go func() {
+				defer wg.Done()
+				userData := UserDataResponse{}
+				url := fmt.Sprintf("http://gi-api:8000/users/%s", userID)
+				getJson(url, &userData)
+				ch2 <- userData
+			}()
 
-		// 		url := fmt.Sprintf("http://gi-api:8000/users?page=%d&per_page=%d", p, perPage)
-		// 		usersList := UsersList{}
-		// 		getJson(url, &usersList)
+			// process request
+			go func() {
+				lock.Lock()
+				defer lock.Unlock()
+				defer wg.Done()
+				user := <-ch2
+				usersMap[userID] = user.User
+			}()
+		}
 
-		// 		for i := 0; i < len(usersList.Users); i++ {
-		// 			wg.Add(1)
-		// 			go func(idx int, list UsersList) {
-		// 				lock.Lock()
-		// 				defer lock.Unlock()
-		// 				defer wg.Done()
-		// 				usersMap[list.Users[idx].PublicID] = FullUser{}
-		// 			}(i, usersList)
-		// 		}
-		// 	}(page)
-		// }
+		wg.Wait()
 
-		// wg.Wait()
-
-		return c.JSON(fiber.Map{"status": "done", "users_len": pagesData.Metadata.TotalCount, "map_len": len(usersMap)})
-		// return c.JSON(usersMap)
+		return c.JSON(fiber.Map{
+			"status":    "done",
+			"users_len": pagesData.Metadata.TotalCount,
+			"map_len":   len(usersMap),
+		})
 	})
 
 	app.Get("/", func(c *fiber.Ctx) error {
