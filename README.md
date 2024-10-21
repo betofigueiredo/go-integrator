@@ -28,7 +28,7 @@
   <br/><br/>
   Endpoint: <strong>/get-users</strong>
   <br/>
-  <img src="https://github.com/user-attachments/assets/e4adfcf2-29db-4cb0-99ad-1952c7e9708c" alt="API Schema 1" />
+  <img src="https://github.com/user-attachments/assets/f7c1ea85-2866-48c7-989f-958bebb684e5" alt="INTEGRATOR Schema" />
 </p>
 
 ...
