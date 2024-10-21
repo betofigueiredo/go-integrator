@@ -56,12 +56,19 @@ func getJson(url string, target interface{}) error {
 	return json.NewDecoder(res.Body).Decode(target)
 }
 
-var wg sync.WaitGroup
+// func timer(name string) func() {
+// 	start := time.Now()
+// 	return func() {
+// 		fmt.Printf("%s took %v\n", name, time.Since(start))
+// 	}
+// }
 
 func main() {
 	app := fiber.New()
 
 	app.Get("/get-users", func(c *fiber.Ctx) error {
+		// defer timer("main")()
+		var wg sync.WaitGroup
 		var lock = sync.RWMutex{}
 		usersMap := map[string]FullUser{}
 		perPage := 1000
@@ -69,29 +76,70 @@ func main() {
 		getJson("http://gi-api:8000/users?page=1&per_page=1", &pagesData)
 		totalPages := int(math.Ceil(float64(pagesData.Metadata.TotalCount) / float64(perPage)))
 
-		for page := 1; page <= totalPages; page++ {
-			wg.Add(1)
+		ch := make(chan UsersList, totalPages)
 
+		for page := 1; page <= totalPages; page++ {
+			wg.Add(2)
+
+			// make request
 			go func(p int) {
 				defer wg.Done()
-
 				url := fmt.Sprintf("http://gi-api:8000/users?page=%d&per_page=%d", p, perPage)
 				usersList := UsersList{}
 				getJson(url, &usersList)
-
-				for i := 0; i < len(usersList.Users); i++ {
-					go func() {
-						lock.Lock()
-						defer lock.Unlock()
-						usersMap[usersList.Users[i].PublicID] = FullUser{}
-					}()
-				}
+				ch <- usersList
 			}(page)
+
+			// process request
+			go func() {
+				lock.Lock()
+				defer lock.Unlock()
+				defer wg.Done()
+				list := <-ch
+				for i := 0; i < len(list.Users); i++ {
+					usersMap[list.Users[i].PublicID] = FullUser{}
+				}
+			}()
 		}
 
 		wg.Wait()
 
-		return c.JSON(fiber.Map{"status": "done"})
+		// go func() {
+		// 	lock.Lock()
+		// 	defer lock.Unlock()
+		// 	defer wg.Done()
+
+		// 	list := <-ch
+		// 	for i := 0; i < len(list.Users); i++ {
+		// 		usersMap[list.Users[i].PublicID] = FullUser{}
+		// 	}
+		// }()
+
+		// for page := 1; page <= totalPages; page++ {
+		// 	wg.Add(1)
+
+		// 	go func(p int) {
+		// 		defer wg.Done()
+
+		// 		url := fmt.Sprintf("http://gi-api:8000/users?page=%d&per_page=%d", p, perPage)
+		// 		usersList := UsersList{}
+		// 		getJson(url, &usersList)
+
+		// 		for i := 0; i < len(usersList.Users); i++ {
+		// 			wg.Add(1)
+		// 			go func(idx int, list UsersList) {
+		// 				lock.Lock()
+		// 				defer lock.Unlock()
+		// 				defer wg.Done()
+		// 				usersMap[list.Users[idx].PublicID] = FullUser{}
+		// 			}(i, usersList)
+		// 		}
+		// 	}(page)
+		// }
+
+		// wg.Wait()
+
+		return c.JSON(fiber.Map{"status": "done", "users_len": pagesData.Metadata.TotalCount, "map_len": len(usersMap)})
 		// return c.JSON(usersMap)
 	})
 
