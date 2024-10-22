@@ -5,7 +5,7 @@
   <a href="https://github.com/betofigueiredo/go-integrator/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge&labelColor=363a4f&color=a6da95"></a>
 </p>
 
-<h2 id="scenario4"> :arrow_right: API</h2>
+<h2 id="scenario4">API</h2>
 
 <p>
   <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Made%20with-Python-blue?style=for-the-badge&labelColor=363a4f&color=346FA0"></a>
@@ -20,7 +20,7 @@
   <img src="https://github.com/user-attachments/assets/5b2f2487-422c-408c-aabf-2bbd5028427d" alt="API Schema 2" />
 </p>
 
-<h2 id="scenario4"> :arrow_right: INTEGRATOR</h2>
+<h2 id="scenario4">Integrator</h2>
 
 <p>
   <a href="https://go.dev/"><img src="https://img.shields.io/badge/Made%20with-Go-blue?style=for-the-badge&labelColor=363a4f&color=007d9c"></a>
