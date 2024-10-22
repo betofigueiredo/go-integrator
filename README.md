@@ -1,6 +1,8 @@
 <h1 align="center">Go Integrator</h1>
 <p align="center">
   Example of integrating different applications for data exchange.
+  <br/>
+  <strong>(work in progress)</strong>
   <br/><br/>
   <a href="https://github.com/betofigueiredo/go-integrator/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge&labelColor=363a4f&color=a6da95"></a>
 </p>
