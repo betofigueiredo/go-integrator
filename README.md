@@ -68,6 +68,7 @@ Start all services:
 ```
 
 <br />
+
 Load your database with some data using K6:
 
 ```zsh
@@ -75,6 +76,7 @@ Load your database with some data using K6:
 ```
 
 <br />
+
 Call Integrator endpoint to fetch data from API:
 
 ```zsh
