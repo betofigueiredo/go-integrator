@@ -123,7 +123,6 @@ func main() {
 			if idsOnChunk == maxUsersOnChunk {
 				idsOnChunk = 0
 				chunks = append(chunks, chunk)
-				fmt.Println(chunk)
 				chunk = chunk[:0]
 			}
 		}
