@@ -7,7 +7,7 @@
   <a href="https://github.com/betofigueiredo/go-integrator/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge&labelColor=363a4f&color=a6da95"></a>
 </p>
 
-<h2>Steps</h2>
+<h2>Integration steps</h2>
 
 <h3>🔹Request users list from API</h3>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Concurrently, in chunks of 1000
@@ -24,6 +24,11 @@
 <h3>🔹Send users data</h3>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;After processed, send to any selected external service
 <br/><br/><br/>
+
+<h2>TODO</h2>
+
+<h3>⭕ Retries and errors</h3>
+<br/><br/>
 
 <h2>API</h2>
 
@@ -53,12 +58,27 @@
   <br/><br/><br/>
 </p>
 
-<h2> :zap: Usage</h2>
+<h2>Usage</h2>
+
+<p>
+Start all services:
 
 ```zsh
-❯ gh repo clone ...
-
 ❯ make up
-
-...
 ```
+
+<br />
+Load your database with some data using K6:
+
+```zsh
+❯ k6 run k6/seed-test.js
+```
+
+<br />
+Call Integrator endpoint to fetch data from API:
+
+```zsh
+❯ curl http://localhost:3002/get-users
+```
+
+</p>
