@@ -7,6 +7,7 @@ import (
 	"math"
 	"net/http"
 	"sync"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -110,41 +111,60 @@ func main() {
 
 		ch2 := make(chan UserDataResponse)
 
-		// get each user information
-		i := 0
+		// break all users IDs in chunks to prevent API overflow
+		idsOnChunk := 0
+		maxUsersOnChunk := 500
+		chunks := [][]string{}
+		chunk := make([]string, 0, maxUsersOnChunk)
+
 		for userID := range usersMap {
-			i++
-			if i > 50 {
-				break
+			chunk = append(chunk, userID)
+			idsOnChunk++
+			if idsOnChunk == maxUsersOnChunk {
+				idsOnChunk = 0
+				chunks = append(chunks, chunk)
+				fmt.Println(chunk)
+				chunk = chunk[:0]
+			}
+		}
+
+		// get each user information
+		for _, usersIDs := range chunks {
+			for _, userID := range usersIDs {
+				wg.Add(2)
+
+				// make user request
+				go func() {
+					defer wg.Done()
+					userData := UserDataResponse{}
+					url := fmt.Sprintf("http://gi-api:8000/users/%s", userID)
+					getJson(url, &userData)
+					ch2 <- userData
+				}()
+
+				// process request
+				go func() {
+					lock.Lock()
+					defer lock.Unlock()
+					defer wg.Done()
+					user := <-ch2
+					usersMap[userID] = user.User
+				}()
 			}
 
-			wg.Add(2)
-
-			// make user request
-			go func() {
-				defer wg.Done()
-				userData := UserDataResponse{}
-				url := fmt.Sprintf("http://gi-api:8000/users/%s", userID)
-				getJson(url, &userData)
-				ch2 <- userData
-			}()
-
-			// process request
-			go func() {
-				lock.Lock()
-				defer lock.Unlock()
-				defer wg.Done()
-				user := <-ch2
-				usersMap[userID] = user.User
-			}()
+			wg.Wait()
+			fmt.Println(" ")
+			fmt.Println("  -> going to next chunk")
+			fmt.Println(" ")
+			time.Sleep(1 * time.Second)
 		}
 
 		wg.Wait()
 
 		return c.JSON(fiber.Map{
-			"status":    "done",
-			"users_len": pagesData.Metadata.TotalCount,
-			"map_len":   len(usersMap),
+			"status":          "done",
+			"users_processed": len(usersMap),
+			"has_errors":      false,
 		})
 	})
 
