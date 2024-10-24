@@ -1,4 +1,5 @@
 import asyncio
+import random
 
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -53,15 +54,27 @@ async def get_users(
 async def get_user(
     user_public_id: str, session: AsyncSession = Depends(get_session)
 ) -> UserResponse[User] | ErrorResponse:
-    # TODO: simulate delay
-    # TODO: random error
     query = select(User).where(User.public_id == user_public_id)
     user = await session.scalar(query)
+
     if not user:
         raise HTTPException(
             detail={"code": "USER_NOT_FOUND", "message": "User not found"},
             status_code=status.HTTP_404_NOT_FOUND,
         )
+
+    # add random errors
+    errors_possibilities = range(500)
+    has_error = random.choice(errors_possibilities) < 4
+    if has_error:
+        raise HTTPException(
+            detail={
+                "code": "INTERNAL_SERVER_ERROR",
+                "message": "Internal server error",
+            },
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
     await asyncio.sleep(0.4)
     return {"user": user}
 
