@@ -147,7 +147,7 @@ func main() {
 					defer lock.Unlock()
 					defer wg.Done()
 					user := <-ch2
-					usersMap[userID] = user.User
+					usersMap[user.User.PublicID] = user.User
 				}()
 			}
 
