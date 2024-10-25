@@ -121,11 +121,14 @@ func main() {
 			chunk = append(chunk, userID)
 			idsOnChunk++
 			if idsOnChunk == maxUsersOnChunk {
-				idsOnChunk = 0
-				chunks = append(chunks, chunk)
+				tmp := make([]string, len(chunk))
+				copy(tmp, chunk)
+				chunks = append(chunks, tmp)
 				chunk = chunk[:0]
+				idsOnChunk = 0
 			}
 		}
+		chunks = append(chunks, chunk)
 
 		// get each user information
 		for _, usersIDs := range chunks {
