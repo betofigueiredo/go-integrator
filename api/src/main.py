@@ -65,7 +65,7 @@ async def get_user(
 
     # add random errors
     errors_possibilities = range(500)
-    has_error = random.choice(errors_possibilities) < 4
+    has_error = random.choice(errors_possibilities) < 2
     if has_error:
         raise HTTPException(
             detail={
