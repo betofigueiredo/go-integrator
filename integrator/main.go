@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"math"
@@ -52,30 +53,27 @@ type UsersList struct {
 }
 
 func getJson(url string, target interface{}) error {
-	// TODO: better error handle
 	res, err := http.Get(url)
-	if err != nil {
-		return err
+	if err != nil || res.StatusCode != 200 {
+		return errors.New("internal server error")
 	}
 	defer res.Body.Close()
 	return json.NewDecoder(res.Body).Decode(target)
 }
 
-// func timer(name string) func() {
-// 	start := time.Now()
-// 	return func() {
-// 		fmt.Printf("%s took %v\n", name, time.Since(start))
-// 	}
-// }
+type UsersSuccess struct {
+	usersMap map[string]FullUser
+	lock     sync.RWMutex
+}
 
 func main() {
 	app := fiber.New()
 
 	app.Get("/get-users", func(c *fiber.Ctx) error {
-		// defer timer("main")()
+		usersSuccess := UsersSuccess{
+			usersMap: map[string]FullUser{},
+		}
 		var wg sync.WaitGroup
-		var lock = sync.RWMutex{}
-		usersMap := map[string]FullUser{}
 		perPage := 1000
 		pagesData := UsersList{}
 		getJson("http://gi-api:8000/users?page=1&per_page=1", &pagesData)
@@ -97,12 +95,12 @@ func main() {
 
 			// process request
 			go func() {
-				lock.Lock()
-				defer lock.Unlock()
+				usersSuccess.lock.Lock()
+				defer usersSuccess.lock.Unlock()
 				defer wg.Done()
 				list := <-ch
 				for i := 0; i < len(list.Users); i++ {
-					usersMap[list.Users[i].PublicID] = FullUser{}
+					usersSuccess.usersMap[list.Users[i].PublicID] = FullUser{}
 				}
 			}()
 		}
@@ -117,7 +115,9 @@ func main() {
 		chunks := [][]string{}
 		chunk := make([]string, 0, maxUsersOnChunk)
 
-		for userID := range usersMap {
+		idsWithError := []string{}
+
+		for userID := range usersSuccess.usersMap {
 			chunk = append(chunk, userID)
 			idsOnChunk++
 			if idsOnChunk == maxUsersOnChunk {
@@ -138,42 +138,80 @@ func main() {
 				// make user request
 				go func() {
 					defer wg.Done()
-					userData := UserDataResponse{}
 					url := fmt.Sprintf("http://gi-api:8000/users/%s", userID)
-					getJson(url, &userData)
+					userData := UserDataResponse{}
+					err := getJson(url, &userData)
+					if err != nil {
+						idsWithError = append(idsWithError, userID)
+					}
 					ch2 <- userData
 				}()
 
 				// process request
 				go func() {
-					lock.Lock()
-					defer lock.Unlock()
+					usersSuccess.lock.Lock()
+					defer usersSuccess.lock.Unlock()
 					defer wg.Done()
 					user := <-ch2
-					usersMap[user.User.PublicID] = user.User
+					if user.User.PublicID != "" {
+						usersSuccess.usersMap[user.User.PublicID] = user.User
+					}
 				}()
 			}
 
 			wg.Wait()
+
 			fmt.Println(" ")
 			fmt.Println("  -> going to next chunk")
 			fmt.Println(" ")
-			time.Sleep(1 * time.Second)
+			time.Sleep(1000 * time.Millisecond)
+		}
+
+		wg.Wait()
+
+		// retry errors
+		remainingErrors := []string{}
+		for _, userID := range idsWithError {
+			wg.Add(2)
+
+			// make user request
+			go func() {
+				defer wg.Done()
+				url := fmt.Sprintf("http://gi-api:8000/users/%s", userID)
+				userData := UserDataResponse{}
+				err := getJson(url, &userData)
+				if err != nil {
+					remainingErrors = append(remainingErrors, userID)
+				}
+				ch2 <- userData
+			}()
+
+			// process request
+			go func() {
+				usersSuccess.lock.Lock()
+				defer usersSuccess.lock.Unlock()
+				defer wg.Done()
+				user := <-ch2
+				if user.User.PublicID != "" {
+					usersSuccess.usersMap[user.User.PublicID] = user.User
+				}
+			}()
+
 		}
 
 		wg.Wait()
 
 		return c.JSON(fiber.Map{
 			"status":          "done",
-			"users_processed": len(usersMap),
-			"has_errors":      false,
+			"users_processed": len(usersSuccess.usersMap),
+			"has_errors":      len(remainingErrors) > 0,
+			"remainingErrors": remainingErrors,
 		})
 	})
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		response := Response{}
 		getJson("http://gi-api:8000/users/mFL2DS5KmpcL", &response)
-		fmt.Println(response.User)
 
 		data := User{
 			PublicID: response.User.PublicID,
