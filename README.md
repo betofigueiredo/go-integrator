@@ -25,11 +25,6 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;After processed, send to any selected external service
 <br/><br/><br/>
 
-<h2>TODO</h2>
-
-<h3>⭕ Retries and errors</h3>
-<br/><br/>
-
 <h2>API</h2>
 
 <p>
