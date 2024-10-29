@@ -7,6 +7,11 @@
   <a href="https://github.com/betofigueiredo/go-integrator/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge&labelColor=363a4f&color=a6da95"></a>
 </p>
 
+<h2>Video explanation (link)</h2>
+
+<a href="https://drive.google.com/file/d/14fp8_C-IaZpLHxk9xxxMlt1d65HYMNas/view?usp=sharing"><img src="https://github.com/user-attachments/assets/c12f96ba-b443-4cbf-a523-1dfe0717ffa1"></a>
+<br/><br/><br/>
+
 <h2>Integration steps</h2>
 
 <h3>🔹Request users list from API</h3>
