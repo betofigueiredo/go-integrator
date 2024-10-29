@@ -46,7 +46,7 @@ async def get_users(
     metadata = ListMetadata(
         {"page": page, "per_page": per_page, "total_count": total_count}
     )
-    await asyncio.sleep(0.4)
+    await asyncio.sleep(0.4)  # delay to simulate real request
     return {"users": list(users), "metadata": metadata}
 
 
@@ -75,7 +75,7 @@ async def get_user(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
-    await asyncio.sleep(0.4)
+    await asyncio.sleep(0.4)  # delay to simulate real request
     return {"user": user}
 
 

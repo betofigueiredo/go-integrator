@@ -111,7 +111,7 @@ func main() {
 
 		// break all users IDs in chunks to prevent API overflow
 		idsOnChunk := 0
-		maxUsersOnChunk := 500
+		maxUsersOnChunk := 200
 		chunks := [][]string{}
 		chunk := make([]string, 0, maxUsersOnChunk)
 
@@ -196,7 +196,6 @@ func main() {
 					usersSuccess.usersMap[user.User.PublicID] = user.User
 				}
 			}()
-
 		}
 
 		wg.Wait()
